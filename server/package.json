@@ -1,0 +1,25 @@
+{
+  "name": "exp-criativa-fila-server",
+  "version": "1.0.0",
+  "description": "Backend Express + PostgreSQL para o projeto Fila Inteligente",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.2",
+    "mysql2": "^3.14.1",
+    "pg": "^8.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "license": "MIT"
+}

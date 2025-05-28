@@ -1,0 +1,40 @@
+/* src/components/RegisterPatient.css */
+.register-patient {
+  max-width: 500px;
+  margin: 0 auto 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form button {
+  padding: 10px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form button:hover {
+  background: #0069d9;
+}
+
+.error {
+  color: #dc3545;
+  margin-bottom: 12px;
+}
+
+.success {
+  color: #28a745;
+  margin-bottom: 12px;
+}

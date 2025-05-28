@@ -1,0 +1,29 @@
+.create-user {
+  margin-bottom: 20px;
+}
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.create-form input,
+.create-form select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+.create-form button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.create-form button[type="submit"] { background: #28a745; color: #fff; }
+.create-form button[type="submit"]:hover { background: #218838; }
+.create-form button[type="button"] { background: #dc3545; color: #fff; }
+.create-form button[type="button"]:hover { background: #c82333; }

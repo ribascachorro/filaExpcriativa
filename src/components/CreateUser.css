@@ -1,29 +1,89 @@
-.create-user {
-  margin-bottom: 20px;
+.create-box {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 6px 16px var(--shadow);
+  text-align: center;
 }
+
+.create-box h2 {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+/* Mensagem de sucesso/erro */
+.message {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+.message.success {
+  color: #28a745;
+}
+.message.error {
+  color: #e03131;
+}
+
+/* Formulário */
 .create-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1rem;
 }
+
 .create-form input,
 .create-form select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
 }
+
+.create-form input:focus,
+.create-form select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Botões estilo “pill” */
 .buttons {
   display: flex;
-  gap: 8px;
+  gap: 1rem;
+  margin-top: 1rem;
 }
-.create-form button {
+
+.submit-btn,
+.cancel-btn {
   flex: 1;
-  padding: 10px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
   border: none;
-  border-radius: 4px;
+  border-radius: 50px;
   cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
 }
-.create-form button[type="submit"] { background: #28a745; color: #fff; }
-.create-form button[type="submit"]:hover { background: #218838; }
-.create-form button[type="button"] { background: #dc3545; color: #fff; }
-.create-form button[type="button"]:hover { background: #c82333; }
+
+.submit-btn {
+  background: var(--bg-primary);
+  color: #fff;
+}
+.submit-btn:hover {
+  opacity: 0.9;
+}
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: #fff;
+}
+.cancel-btn:hover {
+  opacity: 0.9;
+}
+.cancel-btn:active {
+  transform: scale(0.98);
+}

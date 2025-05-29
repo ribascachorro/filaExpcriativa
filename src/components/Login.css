@@ -1,37 +1,70 @@
-.login {
-  margin-bottom: 20px;
+.login-box {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 6px 16px var(--shadow);
+  text-align: center;
 }
+
+.logo {
+  width: 100px;
+  margin: 0 auto 1rem;
+}
+
+.login-box h1 {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1rem;
 }
+
 .login-form input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  background: #f1f3f5;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
 }
+
+.login-form input:focus {
+  outline: none;
+  border-color: #00a18c;
+}
+
 .login-form button {
-  padding: 10px;
-  background: #007bff;
+  padding: 0.75rem;
+  background: var(--bg-primary);
   color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
   border: none;
-  border-radius: 4px;
+  border-radius: 50px; /* botão em “pill” */
   cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
 }
+
 .login-form button:hover {
-  background: #0069d9;
+  opacity: 0.9;
 }
+
+.login-form button:active {
+  transform: scale(0.98);
+}
+
 .link {
-  margin-top: 12px;
-  color: #007bff;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--bg-primary);
   cursor: pointer;
-  text-align: right;
+  transition: opacity 0.2s;
 }
+
 .link:hover {
-  text-decoration: underline;
-}
-.error {
-  color: #dc3545;
-  margin-bottom: 12px;
+  opacity: 0.8;
 }

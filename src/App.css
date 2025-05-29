@@ -1,17 +1,29 @@
-body {
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+:root {
+  --bg-primary: #00bfa5;      /* teal */
+  --card-bg: #ffffff;         /* branco */
+  --text-dark: #343a40;       /* texto principal */
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f0f2f5;
+  padding: 0;
 }
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: var(--bg-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* remove aquele container branco extra que tínhamos */
 .container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-h1 {
-  text-align: center;
-  margin-bottom: 24px;
+  width: 100%;
+  max-width: 360px;
+  padding: 0 1rem;
 }

@@ -52,6 +52,7 @@ export default function CreateUser({ onCancel }) {
           >
             <option value="user">Usuário</option>
             <option value="admin">Admin</option>
+            <option value="doctor">Médico</option>
           </select>
 
           <div className="buttons">

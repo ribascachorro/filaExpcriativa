@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import Login from './components/Login';
+import AdminDashboard from './components/AdminDashboard';
 import CreateUser from './components/CreateUser';
+import DoctorDashboard from './components/DoctorDashboard';
+import Login from './components/Login';
 import RegisterPatient from './components/RegisterPatient';
 import UserQueue from './components/UserQueue';
-import AdminDashboard from './components/AdminDashboard';
+
 import api from './services/api';
 
 export default function App() {
-  const [screen, setScreen] = useState('login'); // 'login' | 'create-user' | 'register-patient' | 'user-queue' | 'admin'
+  const [screen, setScreen] = useState('login'); // 'login' | 'create-user' | 'register-patient' | 'user-queue' | 'admin' | 'doctor'
   const [user, setUser] = useState({ user_id: null, role: null });
 
   // Após login bem-sucedido
@@ -15,6 +17,8 @@ export default function App() {
     setUser({ user_id, role });
     if (role === 'admin') {
       setScreen('admin');
+    } else if (role === 'doctor') {
+      setScreen('doctor');
     } else {
       // Verifica se já existe paciente vinculado a este usuário
       try {
@@ -62,6 +66,8 @@ export default function App() {
       {screen === 'user-queue' && <UserQueue userId={user.user_id} />}
 
       {screen === 'admin' && <AdminDashboard userId={user.user_id} />}
+
+      {screen === 'doctor' && <DoctorDashboard userId={user.user_id} />}
     </div>
   );
 }

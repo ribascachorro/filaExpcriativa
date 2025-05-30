@@ -24,6 +24,5 @@ body {
 /* remove aquele container branco extra que tínhamos */
 .container {
   width: 100%;
-  max-width: 360px;
-  padding: 0 1rem;
+  padding: 0 1rem; /* tirei o max-width pra ficar responsivo */
 }

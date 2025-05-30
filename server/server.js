@@ -122,18 +122,31 @@ app.post('/queue', async (req, res) => {
 });
 
 // ENDPOINT NOVO: Listar fila (somente status = waiting)
+// ajustei a consulta para retornar os dados relevantes do paciente
+//ta funcionando suave
 app.get('/queue', async (req, res) => {
   try {
     const { priority } = req.query;
-    let sql = 'SELECT * FROM queue_entries WHERE status = ?';
+    let sql = `
+      SELECT 
+        qe.*,
+        p.name,
+        p.email,
+        p.phone,
+        p.cpf,
+        p.gender
+      FROM queue_entries qe
+      INNER JOIN patients p ON qe.patient_id = p.id
+      WHERE qe.status = ?
+    `;
     const params = ['waiting'];
 
     if (priority === 'true' || priority === 'false') {
-      sql += ' AND is_priority = ?';
+      sql += ' AND qe.is_priority = ?';
       params.push(priority === 'true');
     }
 
-    sql += ' ORDER BY is_priority DESC, created_at ASC';
+    sql += ' ORDER BY qe.is_priority DESC, qe.created_at ASC';
     const [rows] = await pool.query(sql, params);
     res.json(rows);
   } catch (err) {
@@ -141,6 +154,25 @@ app.get('/queue', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ENDPOINT NOVO: Atender paciente na fila
+//ta funcionando suave
+app.post('/queue/:id/attend', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const now = new Date();
+    const [result] = await pool.query(
+      'UPDATE queue_entries SET status = ?, served_at = ? WHERE id = ?',
+      ['attended', now, id]
+    );
+    res.json({ message: 'Paciente atendido com sucesso' });
+  } catch (err) {
+    console.error('Erro ao atender paciente:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 // Inicialização do servidor
 const PORT = process.env.PORT || 3001;

@@ -42,6 +42,6 @@ CREATE TABLE `usuarios` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `login` VARCHAR(100) NOT NULL UNIQUE,
   `senha` VARCHAR(255) NOT NULL,
-  `role` ENUM('admin','user') NOT NULL DEFAULT 'user',
+  `role` ENUM('admin','user', 'doctor') NOT NULL DEFAULT 'user',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;

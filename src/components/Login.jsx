@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import api from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 import './Login.css';
 import logo from '../assets/logo.png';
 
 export default function Login({ onCreate, onSuccess }) {
-  const [login, setLogin] = useState('');
+  const { user, login } = useContext(AuthContext);
+  const [loginField, setLoginField] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = async e => {
+  // Se já existir user no contexto, aciona onSuccess automaticamente
+  useEffect(() => {
+    if (user) {
+      onSuccess(user);
+    }
+  }, [user, onSuccess]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const res = await api.post('/auth/login', { login, senha });
-      onSuccess({ user_id: res.data.user_id, role: res.data.role });
+      const res = await api.post('/auth/login', { login: loginField, senha });
+      // Esperamos retornar { user_id, role }
+      const { user_id, role } = res.data;
+      // Se o servidor retornar token, coloque em userData (por ex: res.data.token)
+      login({ user_id, role, token: res.data.token });
+      // onSuccess será chamado pelo useEffect acima, pois user no contexto foi atualizado
     } catch {
       setError('Login ou senha inválidos');
     }
@@ -29,8 +42,8 @@ export default function Login({ onCreate, onSuccess }) {
           <input
             type="text"
             placeholder="Usuário ou E-mail"
-            value={login}
-            onChange={e => setLogin(e.target.value)}
+            value={loginField}
+            onChange={e => setLoginField(e.target.value)}
             required
           />
           <input

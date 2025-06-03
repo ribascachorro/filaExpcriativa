@@ -1,8 +1,9 @@
+// src/components/RegisterPatient.jsx
 import React, { useState } from 'react';
 import api from '../services/api';
 import './RegisterPatient.css';
 
-export default function RegisterPatient({ userId, onRegistered }) {
+export default function RegisterPatient({ userId, adminMode = false, onRegistered }) {
   const [form, setForm] = useState({
     cpf: '',
     name: '',
@@ -23,10 +24,23 @@ export default function RegisterPatient({ userId, onRegistered }) {
     e.preventDefault();
     setError('');
     setSuccess('');
+
     try {
-      await api.post('/patients', { ...form, user_id: userId });
-      setSuccess('Cadastro realizado com sucesso!');
-      onRegistered();
+      if (adminMode) {
+        // Usa o novo endpoint /patients/admin
+        const res = await api.post('/patients/admin', {
+          ...form,
+          user_id: userId
+        });
+        // res.data = { patient, queueEntry }
+        setSuccess('Paciente cadastrado e enfileirado com sucesso!');
+        onRegistered(); // dispara recarregar fila no AdminDashboard
+      } else {
+        // Modo normal (usuário comum): só cria paciente
+        await api.post('/patients', { ...form, user_id: userId });
+        setSuccess('Cadastro realizado com sucesso!');
+        onRegistered(); // volta para fila de usuário
+      }
     } catch (err) {
       console.error('Erro ao cadastrar paciente:', err);
       setError(err.response?.data?.error || 'Erro ao cadastrar paciente');
@@ -36,7 +50,11 @@ export default function RegisterPatient({ userId, onRegistered }) {
   return (
     <div className="container">
       <div className="register-box">
-        <h2>Cadastro Completo do Paciente</h2>
+        <h2>
+          {adminMode
+            ? 'Cadastro Presencial e Enfileirar'
+            : 'Cadastro Completo do Paciente'}
+        </h2>
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
         <form className="form" onSubmit={handleSubmit}>
@@ -94,7 +112,7 @@ export default function RegisterPatient({ userId, onRegistered }) {
             onChange={handleChange}
           />
           <button type="submit" className="submit-btn">
-            Cadastrar Paciente
+            {adminMode ? 'Cadastrar e Enfileirar' : 'Cadastrar Paciente'}
           </button>
         </form>
       </div>

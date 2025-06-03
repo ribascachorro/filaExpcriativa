@@ -99,6 +99,7 @@
   border: none;
   padding: 1rem;
   border-radius: 8px;
+  margin-right: 20px;
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;
@@ -123,4 +124,66 @@
   color: #e03131;
   text-align: center;
   margin: 1rem 0;
-} 
+}
+
+/* ===== Estilos do Modal ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.modal-close:hover {
+  opacity: 0.7;
+}
+
+.card-anamnese {
+  background: var(--card-bg);
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.card-anamnese p {
+  margin: 0.5rem 0;
+  color: var(--text-dark);
+}
+
+.card-anamnese hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 1rem 0;
+}

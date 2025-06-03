@@ -171,6 +171,16 @@ app.post('/queue/:id/attend', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+app.get('/queue/:id/anamnesis', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query('SELECT * FROM anamnese WHERE patient_id = ?', [id]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Erro ao buscar anamnese:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 

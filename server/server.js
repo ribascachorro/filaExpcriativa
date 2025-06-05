@@ -1,10 +1,10 @@
 // server/server.js
 // Backend Express + MySQL (mysql2) com CORS, autenticação, vinculação user-patient
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2/promise');
-const bcrypt = require('bcryptjs');
+import bcrypt from 'bcryptjs';
+import cors from 'cors';
+import 'dotenv/config';
+import express from 'express';
+import mysql from 'mysql2/promise';
 
 const app = express();
 const pool = mysql.createPool(process.env.DATABASE_URL);
@@ -171,7 +171,173 @@ app.post('/queue/:id/attend', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+//ENDPOINT: GET na anamnese do paciente atual
 app.get('/queue/:id/anamnesis', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Primeiro, vamos pegar o patient_id correto da fila
+    const [queueEntry] = await pool.query(
+      'SELECT patient_id FROM queue_entries WHERE id = ?',
+      [id]
+    );
+    
+    if (queueEntry.length === 0) {
+      return res.status(404).json({ error: 'Paciente não encontrado na fila' });
+    }
+
+    const patientId = queueEntry[0].patient_id;
+    const [rows] = await pool.query('SELECT * FROM anamnese WHERE patient_id = ?', [patientId]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Erro ao buscar anamnese:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+//ENDPOINT: POST para criar anamnese
+app.post('/queue/:id/anamnesis', async (req, res) => {
+  const { id } = req.params;
+  const {
+    queixa_principal,
+    historia_da_doenca_atual,
+    historico_medico,
+    medicacoes_em_uso,
+    alergias,
+    historico_familiar,
+    habitos_de_vida,
+    sintomas_rev_sistemas,
+    outras_informacoes
+  } = req.body;
+
+  if (!queixa_principal) {
+    return res.status(400).json({ message: 'Queixa principal é obrigatória.' });
+  }
+
+  try {
+    // Primeiro, vamos pegar o patient_id correto da fila
+    const [queueEntry] = await pool.query(
+      'SELECT patient_id FROM queue_entries WHERE id = ?',
+      [id]
+    );
+    
+    if (queueEntry.length === 0) {
+      return res.status(404).json({ error: 'Paciente não encontrado na fila' });
+    }
+
+    const patientId = queueEntry[0].patient_id;
+
+    const [resultado] = await pool.query(
+      `INSERT INTO anamnese (
+         patient_id,
+         queixa_principal,
+         historia_da_doenca_atual,
+         historico_medico,
+         medicacoes_em_uso,
+         alergias,
+         historico_familiar,
+         habitos_de_vida,
+         sintomas_rev_sistemas,
+         outras_informacoes
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        patientId,
+        queixa_principal,
+        historia_da_doenca_atual || null,
+        historico_medico || null,
+        medicacoes_em_uso || null,
+        alergias || null,
+        historico_familiar || null,
+        habitos_de_vida || null,
+        sintomas_rev_sistemas || null,
+        outras_informacoes || null
+      ]
+    );
+
+    return res.status(201).json({ 
+      message: 'Anamnese criada com sucesso.', 
+      id: resultado.insertId 
+    });
+  } catch (erro) {
+    console.error('Erro ao criar anamnese:', erro);
+    return res.status(500).json({ message: 'Erro interno ao criar anamnese.' });
+  }
+});
+
+//ENDPOINT: PUT para atualizar anamnese
+app.put('/queue/:id/anamnesis', async (req, res) => {
+  const { id } = req.params;
+  const {
+    queixa_principal,
+    historia_da_doenca_atual,
+    historico_medico,
+    medicacoes_em_uso,
+    alergias,
+    historico_familiar,
+    habitos_de_vida,
+    sintomas_rev_sistemas,
+    outras_informacoes
+  } = req.body;
+
+  if (!queixa_principal) {
+    return res.status(400).json({ message: 'Queixa principal é obrigatória.' });
+  }
+
+  try {
+    // Primeiro, vamos pegar o patient_id correto da fila
+    const [queueEntry] = await pool.query(
+      'SELECT patient_id FROM queue_entries WHERE id = ?',
+      [id]
+    );
+    
+    if (queueEntry.length === 0) {
+      return res.status(404).json({ error: 'Paciente não encontrado na fila' });
+    }
+
+    const patientId = queueEntry[0].patient_id;
+
+    const [resultado] = await pool.query(
+      `UPDATE anamnese SET
+         queixa_principal = ?,
+         historia_da_doenca_atual = ?,
+         historico_medico = ?,
+         medicacoes_em_uso = ?,
+         alergias = ?,
+         historico_familiar = ?,
+         habitos_de_vida = ?,
+         sintomas_rev_sistemas = ?,
+         outras_informacoes = ?,
+         updated_at = NOW()
+       WHERE patient_id = ?`,
+      [
+        queixa_principal,
+        historia_da_doenca_atual || null,
+        historico_medico || null,
+        medicacoes_em_uso || null,
+        alergias || null,
+        historico_familiar || null,
+        habitos_de_vida || null,
+        sintomas_rev_sistemas || null,
+        outras_informacoes || null,
+        patientId
+      ]
+    );
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({ message: 'Anamnese não encontrada.' });
+    }
+
+    return res.json({ 
+      message: 'Anamnese atualizada com sucesso.'
+    });
+  } catch (erro) {
+    console.error('Erro ao atualizar anamnese:', erro);
+    return res.status(500).json({ message: 'Erro interno ao atualizar anamnese.' });
+  }
+});
+
+//ENDPOINT: GET na anamnese do paciente
+app.get('/patients/:id/anamnesis', async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await pool.query('SELECT * FROM anamnese WHERE patient_id = ?', [id]);
@@ -182,7 +348,123 @@ app.get('/queue/:id/anamnesis', async (req, res) => {
   }
 });
 
+//ENDPOINT: POST para criar anamnese
+app.post('/patients/:id/anamnesis', async (req, res) => {
+  const { id } = req.params;
+  const {
+    queixa_principal,
+    historia_da_doenca_atual,
+    historico_medico,
+    medicacoes_em_uso,
+    alergias,
+    historico_familiar,
+    habitos_de_vida,
+    sintomas_rev_sistemas,
+    outras_informacoes
+  } = req.body;
 
+  if (!queixa_principal) {
+    return res.status(400).json({ message: 'Queixa principal é obrigatória.' });
+  }
+
+  try {
+    const [resultado] = await pool.query(
+      `INSERT INTO anamnese (
+         patient_id,
+         queixa_principal,
+         historia_da_doenca_atual,
+         historico_medico,
+         medicacoes_em_uso,
+         alergias,
+         historico_familiar,
+         habitos_de_vida,
+         sintomas_rev_sistemas,
+         outras_informacoes
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        queixa_principal,
+        historia_da_doenca_atual || null,
+        historico_medico || null,
+        medicacoes_em_uso || null,
+        alergias || null,
+        historico_familiar || null,
+        habitos_de_vida || null,
+        sintomas_rev_sistemas || null,
+        outras_informacoes || null
+      ]
+    );
+
+    return res.status(201).json({ 
+      message: 'Anamnese criada com sucesso.', 
+      id: resultado.insertId 
+    });
+  } catch (erro) {
+    console.error('Erro ao criar anamnese:', erro);
+    return res.status(500).json({ message: 'Erro interno ao criar anamnese.' });
+  }
+});
+
+//ENDPOINT: PUT para atualizar anamnese
+app.put('/patients/:id/anamnesis/:anamneseId', async (req, res) => {
+  const { id, anamneseId } = req.params;
+  const {
+    queixa_principal,
+    historia_da_doenca_atual,
+    historico_medico,
+    medicacoes_em_uso,
+    alergias,
+    historico_familiar,
+    habitos_de_vida,
+    sintomas_rev_sistemas,
+    outras_informacoes
+  } = req.body;
+
+  if (!queixa_principal) {
+    return res.status(400).json({ message: 'Queixa principal é obrigatória.' });
+  }
+
+  try {
+    const [resultado] = await pool.query(
+      `UPDATE anamnese SET
+         queixa_principal = ?,
+         historia_da_doenca_atual = ?,
+         historico_medico = ?,
+         medicacoes_em_uso = ?,
+         alergias = ?,
+         historico_familiar = ?,
+         habitos_de_vida = ?,
+         sintomas_rev_sistemas = ?,
+         outras_informacoes = ?,
+         updated_at = NOW()
+       WHERE id = ? AND patient_id = ?`,
+      [
+        queixa_principal,
+        historia_da_doenca_atual || null,
+        historico_medico || null,
+        medicacoes_em_uso || null,
+        alergias || null,
+        historico_familiar || null,
+        habitos_de_vida || null,
+        sintomas_rev_sistemas || null,
+        outras_informacoes || null,
+        anamneseId,
+        id
+      ]
+    );
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({ message: 'Anamnese não encontrada.' });
+    }
+
+    return res.json({ 
+      message: 'Anamnese atualizada com sucesso.'
+    });
+  } catch (erro) {
+    console.error('Erro ao atualizar anamnese:', erro);
+    return res.status(500).json({ message: 'Erro interno ao atualizar anamnese.' });
+  }
+});
 
 // Inicialização do servidor
 const PORT = process.env.PORT || 3001;

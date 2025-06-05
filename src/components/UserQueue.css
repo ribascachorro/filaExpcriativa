@@ -19,25 +19,54 @@
   margin-bottom: 0.5rem;
 }
 
-.enter-btn {
-  display: block;
-  width: 100%;
+.buttons-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.enter-btn, .anamnese-btn {
+  flex: 1;
   padding: 0.75rem;
-  margin: 1rem 0;
-  background: var(--bg-primary);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 500;
   border: none;
   border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s;
 }
-.enter-btn:hover {
+
+.enter-btn {
+  background: var(--bg-primary);
+  color: #fff;
+}
+
+.anamnese-btn {
+  background: var(--bg-secondary);
+  color: var(--text-dark);
+}
+
+.enter-btn:hover:not(:disabled), .anamnese-btn:hover {
   opacity: 0.9;
 }
-.enter-btn:active {
+
+.enter-btn:active:not(:disabled), .anamnese-btn:active {
   transform: scale(0.98);
+}
+
+.enter-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .buttons-row {
+    flex-direction: column;
+  }
+  
+  .enter-btn, .anamnese-btn {
+    width: 100%;
+  }
 }
 
 .success {

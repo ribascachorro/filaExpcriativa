@@ -10,6 +10,7 @@
   margin-bottom: 2rem;
 }
 
+/* ===== Estilos da Fila ===== */
 .queue-info {
   margin-bottom: 2rem;
 }
@@ -35,14 +36,15 @@
   margin: 0.5rem 0;
 }
 
-.next-patient {
+/* ===== Estilos do Paciente Atual ===== */
+.paciente-atual {
   background: var(--card-bg);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px var(--shadow);
 }
 
-.next-patient h3 {
+.paciente-atual h3 {
   color: var(--text-dark);
   margin-bottom: 1.5rem;
   text-align: center;
@@ -93,17 +95,25 @@
   color: white;
 }
 
+/* ===== Estilos dos Botões ===== */
+.buttons-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .attend-button {
   background: var(--bg-primary);
   color: white;
   border: none;
   padding: 1rem;
   border-radius: 8px;
-  margin-right: 20px;
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s;
+  flex: 1;
+  min-width: 200px;
 }
 
 .attend-button:hover {
@@ -114,19 +124,12 @@
   transform: scale(0.98);
 }
 
-.no-patients {
-  text-align: center;
-  color: #666;
-  font-size: 1.1rem;
+.attend-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
-.error {
-  color: #e03131;
-  text-align: center;
-  margin: 1rem 0;
-}
-
-/* ===== Estilos do Modal ===== */
+/* ===== Estilos dos Modais ===== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -168,6 +171,7 @@
   opacity: 0.7;
 }
 
+/* ===== Estilos da Anamnese ===== */
 .card-anamnese {
   background: var(--card-bg);
   border: 1px solid #ddd;
@@ -177,13 +181,111 @@
   box-shadow: 0 2px 4px var(--shadow);
 }
 
+.anamnese-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .card-anamnese p {
   margin: 0.5rem 0;
   color: var(--text-dark);
+  line-height: 1.5;
 }
 
 .card-anamnese hr {
   border: none;
   border-top: 1px solid #eee;
   margin: 1rem 0;
+}
+
+/* ===== Estilos do Formulário de Anamnese ===== */
+.form-anamnese {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.form-group textarea {
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  font-size: 1rem;
+  color: var(--text-dark);
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--bg-primary);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.form-group textarea[required] {
+  border-left: 3px solid var(--bg-primary);
+}
+
+/* ===== Mensagens de Estado ===== */
+.error {
+  color: #e03131;
+  text-align: center;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background: rgba(224, 49, 49, 0.1);
+  border-radius: 4px;
+}
+
+.no-patients {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+/* ===== Responsividade ===== */
+@media (max-width: 768px) {
+  .doctor-dashboard {
+    padding: 1rem;
+  }
+
+  .buttons-row {
+    flex-direction: column;
+  }
+
+  .attend-button {
+    width: 100%;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .label {
+    min-width: auto;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
 }

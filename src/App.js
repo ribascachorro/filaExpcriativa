@@ -1,51 +1,55 @@
-import React, { useState, useContext, useEffect } from 'react';
-import Login from './components/Login';
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from './context/AuthContext';
+import AdminDashboard from './components/AdminDashboard';
 import CreateUser from './components/CreateUser';
+import DoctorDashboard from './components/DoctorDashboard';
+import Login from './components/Login';
 import RegisterPatient from './components/RegisterPatient';
 import UserQueue from './components/UserQueue';
-import AdminDashboard from './components/AdminDashboard';
-import DoctorDashboard from './components/DoctorDashboard';
 import api from './services/api';
-import { AuthContext } from './context/AuthContext';
 import './App.css';
+import logo from './assets/logo.png'; // Supondo que você queira o logo no header
 
-// Componente de Header com botão de logout
+// Componente de Header foi movido para dentro do App.js para ter acesso ao logo
 function Header({ onLogout, role }) {
   return (
     <header className="app-header">
-      <span className="header-role">Você está logado como: {role}</span>
-      <button className="logout-btn" onClick={onLogout}>
-        Sair
-      </button>
+      <div className="header-left">
+        <span className="header-role">Logado como: <strong>{role}</strong></span>
+      </div>
+      <div className="header-center">
+        <img src={logo} alt="Logo" className="header-logo" />
+        <h1 className="header-title">Fila Inteligente</h1>
+      </div>
+      <div className="header-right">
+        <button className="logout-btn" onClick={onLogout}>
+          Sair
+        </button>
+      </div>
     </header>
   );
 }
 
 export default function App() {
-  const { user, login, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [screen, setScreen] = useState('login');
-  // 'login' | 'create-user' | 'register-patient' | 'user-queue' | 'admin' | 'doctor'
 
-  // Sempre que `user` mudar, decidimos a tela
   useEffect(() => {
     if (!user) {
       setScreen('login');
       return;
     }
 
-    // Se for admin
     if (user.role === 'admin') {
       setScreen('admin');
       return;
     }
 
-    // Se for médico
     if (user.role === 'doctor') {
       setScreen('doctor');
       return;
     }
 
-    // Usuário comum: verificar paciente vinculado
     api
       .get('/patients/byuser', { params: { user_id: user.user_id } })
       .then(res => {
@@ -54,28 +58,27 @@ export default function App() {
       .catch(() => setScreen('register-patient'));
   }, [user]);
 
-  // Callback após cadastro de paciente
   const handleRegistered = () => {
     setScreen('user-queue');
   };
 
-  // Callback após login (passado para Login.jsx)
   const handleLoginSuccess = () => {
-    // O próprio useEffect acima cuidará do redirecionamento, pois `user` já foi atualizado pelo contexto
+    // O useEffect acima já redireciona a tela com base no 'user' do contexto.
   };
 
-  // Função de logout
   const handleLogout = () => {
     logout();
     setScreen('login');
   };
 
-  return (
-    <div className="container">
-      {/* Header apenas se houver USER autenticado */}
-      {user && <Header onLogout={handleLogout} role={user.role} />}
+  // **A CORREÇÃO PRINCIPAL ESTÁ AQUI**
+  // Adicionamos dinamicamente a classe correta ao container
+  const containerClassName = user ? "container header-active" : "container no-header-active";
 
-      <h1>Fila Inteligente</h1>
+  return (
+    <div className={containerClassName}> {/* Usando a classe dinâmica */}
+      {/* O Header é renderizado apenas se houver um usuário logado */}
+      {user && <Header onLogout={handleLogout} role={user.role} />}
 
       {screen === 'login' && (
         <Login
@@ -88,15 +91,15 @@ export default function App() {
         <CreateUser onCancel={() => setScreen('login')} />
       )}
 
-      {screen === 'register-patient' && (
+      {screen === 'register-patient' && user && (
         <RegisterPatient userId={user.user_id} onRegistered={handleRegistered} />
       )}
 
-      {screen === 'user-queue' && <UserQueue userId={user.user_id} />}
+      {screen === 'user-queue' && user && <UserQueue userId={user.user_id} />}
 
-      {screen === 'admin' && <AdminDashboard userId={user.user_id} />}
+      {screen === 'admin' && user && <AdminDashboard userId={user.user_id} />}
 
-      {screen === 'doctor' && <DoctorDashboard userId={user.user_id} />}
+      {screen === 'doctor' && user && <DoctorDashboard userId={user.user_id} />}
     </div>
   );
 }

@@ -1,28 +1,112 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+/* Definição de variáveis globais (sem alteração) */
 :root {
-  --bg-primary: #00bfa5;      /* teal */
-  --card-bg: #ffffff;         /* branco */
-  --text-dark: #343a40;       /* texto principal */
+  --bg-primary: #00bfa5;
+  --card-bg: #ffffff;
+  --text-dark: #343a40;
   --shadow: rgba(0, 0, 0, 0.1);
 }
 
+/* Reset básico (sem alteração) */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* Estilos do body (simplificado) */
 body {
   font-family: 'Roboto', sans-serif;
-  background: var(--bg-primary);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  background: var(--bg-primary); /* A cor de fundo principal fica aqui */
 }
 
-/* remove aquele container branco extra que tínhamos */
+/* Estilos base do container (aqui está a lógica principal) */
 .container {
   width: 100%;
-  padding: 0 1rem; /* tirei o max-width pra ficar responsivo */
+  min-height: 100vh;
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centraliza o conteúdo (login-box, admin-box, etc.) horizontalmente */
+}
+
+/* MODIFICADOR para a tela de login (sem header) */
+.container.no-header-active {
+  justify-content: center; /* Centraliza o conteúdo verticalmente */
+}
+
+/* MODIFICADOR para telas internas (com header) */
+.container.header-active {
+  justify-content: flex-start; /* Alinha o conteúdo no topo */
+  padding-top: 90px;           /* Adiciona espaço para o header fixo (70px de altura + 20px de respiro) */
+}
+
+
+/* ===== ESTILOS DO HEADER (sem alteração na lógica, apenas ajustes finos) ===== */
+.app-header {
+  background-color: var(--card-bg);
+  color: var(--text-dark);
+  box-shadow: 0 2px 8px var(--shadow);
+  width: 100%;
+  height: 70px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+.header-left {
+  justify-self: start;
+}
+
+.header-center {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  justify-self: end;
+}
+
+.header-role {
+  font-size: 0.9rem;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.header-logo {
+  height: 50px;
+  margin-right: 12px;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+.logout-btn:active {
+  transform: scale(0.97);
 }

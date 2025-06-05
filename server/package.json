@@ -1,6 +1,7 @@
 {
   "name": "exp-criativa-fila-server",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend Express + PostgreSQL para o projeto Fila Inteligente",
   "main": "server.js",
   "scripts": {

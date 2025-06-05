@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import api from '../services/api'; // Confirme se o caminho para seu arquivo api.js está correto
+import AnamneseModal from './AnamneseModal';
 import './UserQueue.css'; // Arquivo de estilos para este componente
 
 // Constante para o tempo médio de atendimento
@@ -8,10 +9,12 @@ const AVERAGE_SECONDS_PER_PATIENT = 10 * 60; // 10 minutos em segundos
 export default function UserQueue({ userId }) {
   const [queue, setQueue] = useState([]);
   const [patient, setPatient] = useState(null);
+  const [anamnese, setAnamnese] = useState(null);
   const [error, setError] = useState('');
   const [joined, setJoined] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAnamneseModal, setShowAnamneseModal] = useState(false);
 
   const timerRef = useRef(null);
 
@@ -31,12 +34,27 @@ export default function UserQueue({ userId }) {
           console.log("Dados do paciente recebidos do backend:", resPat.data.patient);
           patientData = resPat.data.patient;
           setPatient(patientData);
+
+          // Buscar anamnese do paciente
+          try {
+            const resAnamnese = await api.get(`/patients/${patientData.id}/anamnesis`);
+            if (resAnamnese.data && resAnamnese.data.length > 0) {
+              setAnamnese(resAnamnese.data[0]);
+            } else {
+              setAnamnese(null);
+            }
+          } catch (err) {
+            console.error('Erro ao buscar anamnese:', err);
+            setAnamnese(null);
+          }
         } else {
           setPatient(null);
+          setAnamnese(null);
           setError("Seus dados de paciente não foram encontrados. Por favor, complete seu cadastro de paciente.");
         }
       } catch (err) {
         setPatient(null);
+        setAnamnese(null);
         if (err.response && err.response.status === 404) {
             setError("Cadastro de paciente não encontrado. Por favor, realize seu cadastro para entrar na fila.");
         } else {
@@ -226,9 +244,17 @@ export default function UserQueue({ userId }) {
                 <p className="queue-time-estimate">
                   Tempo estimado de espera se entrar agora: <strong>aproximadamente {Math.round(estimatedMinutesBeforeJoining)} minutos</strong>.
                 </p>
-                <button className="enter-btn" onClick={handleEnterQueue} disabled={!patient || !patient.cpf}> {/* Adicionado !patient.cpf ao disabled */}
-                  Entrar na Fila
-                </button>
+                <div className="buttons-row">
+                  <button className="enter-btn" onClick={handleEnterQueue} disabled={!patient || !patient.cpf}>
+                    Entrar na Fila
+                  </button>
+                  <button 
+                    className="anamnese-btn" 
+                    onClick={() => setShowAnamneseModal(true)}
+                  >
+                    {anamnese ? 'Editar Anamnese' : 'Criar Anamnese'}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="joined-section">
@@ -258,6 +284,17 @@ export default function UserQueue({ userId }) {
           </>
         )}
       </div>
+
+      {showAnamneseModal && patient && (
+        <AnamneseModal
+          patientId={patient.id}
+          existingAnamnese={anamnese}
+          onClose={() => {
+            setShowAnamneseModal(false);
+            fetchData(); // Recarrega os dados após fechar o modal
+          }}
+        />
+      )}
     </div>
   );
 }

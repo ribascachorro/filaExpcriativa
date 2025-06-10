@@ -465,6 +465,87 @@ app.put('/patients/:id/anamnesis/:anamneseId', async (req, res) => {
     return res.status(500).json({ message: 'Erro interno ao atualizar anamnese.' });
   }
 });
+// NOVO ENDPOINT: Remover/cancelar um paciente da fila (Soft Delete)
+app.delete('/queue/:id', async (req, res) => {
+  const { id } = req.params; // Este é o ID da entrada na tabela queue_entries
+
+  if (!id) {
+    return res.status(400).json({ error: 'ID da entrada na fila não fornecido.' });
+  }
+
+  try {
+    // Em vez de um DELETE, fazemos um UPDATE no status do registro.
+    // Isso preserva o histórico de quem esteve na fila.
+    const [result] = await pool.query(
+      "UPDATE queue_entries SET status = 'cancelled', cancelled_at = NOW() WHERE id = ?",
+      [id]
+    );
+
+    // Verifica se alguma linha foi de fato atualizada
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Entrada na fila não encontrada com o ID fornecido.' });
+    }
+
+    // Retorna sucesso
+    res.status(200).json({ message: 'Paciente removido da fila com sucesso.' });
+    
+  } catch (err) {
+    console.error('Erro ao remover paciente da fila:', err);
+    res.status(500).json({ error: 'Erro interno do servidor ao tentar remover da fila.' });
+  }
+});
+
+app.post('/patients/admin', async (req, res) => {
+  // Dados do paciente e da fila (prioridade é opcional)
+  const { name, email, phone, birth_date, cpf, is_priority = false } = req.body;
+
+  // Validação básica
+  if (!name || !cpf) {
+    return res.status(400).json({ error: 'Nome e CPF são obrigatórios.' });
+  }
+
+  let connection;
+  try {
+    // Obter uma conexão do pool para usar em uma transação
+    connection = await pool.getConnection();
+    await connection.beginTransaction(); // Inicia a transação
+
+    // Passo 1: Inserir o novo paciente na tabela 'patients'
+    const [patientResult] = await connection.query(
+      `INSERT INTO patients (name, email, phone, birth_date, cpf) VALUES (?, ?, ?, ?, ?)`,
+      [name, email || null, phone || null, birth_date || null, cpf]
+    );
+    const newPatientId = patientResult.insertId;
+
+    // Passo 2: Usar o ID do paciente recém-criado para inseri-lo na fila
+    await connection.query(
+      `INSERT INTO queue_entries (patient_id, is_priority) VALUES (?, ?)`,
+      [newPatientId, is_priority]
+    );
+
+    // Passo 3: Se ambas as operações foram bem-sucedidas, confirma a transação
+    await connection.commit();
+
+    // Retorna uma resposta de sucesso
+    res.status(201).json({ message: 'Paciente cadastrado e enfileirado com sucesso!' });
+
+  } catch (err) {
+    // Se ocorrer qualquer erro, desfaz todas as operações da transação
+    if (connection) await connection.rollback();
+
+    console.error('Erro ao cadastrar e enfileirar paciente:', err);
+    // Trata erro de CPF duplicado
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Um paciente com este CPF já existe.' });
+    }
+    // Retorna erro genérico para outros problemas
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  } finally {
+    // Garante que a conexão seja liberada de volta para o pool
+    if (connection) connection.release();
+  }
+});
+
 
 // Inicialização do servidor
 const PORT = process.env.PORT || 3001;

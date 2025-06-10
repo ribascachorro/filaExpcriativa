@@ -430,9 +430,14 @@ app.use('/api', apiRouter);
 
 // --- ROTA "CATCH-ALL" (DEVE SER A ÚLTIMA ROTA DE TODAS) ---
 // Qualquer requisição que não seja para a API (não começa com /api) será tratada pelo React.
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
-});
+if (process.env.NODE_ENV === 'production') {
+  // Qualquer requisição que não seja para a API, serve o site React.
+  app.get('*', (req, res) => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  });
+}
 
 // --- INICIALIZAÇÃO DO SERVIDOR ---
 const PORT = process.env.PORT || 3001;

@@ -20,9 +20,11 @@ const pool = mysql.createPool(process.env.DATABASE_URL);
 })();
 
 // Middlewares
-app.use(cors({ origin: 'http://localhost:3000' }));
+// --- MUDANÇA DE CONFIGURAÇÃO ESSENCIAL AQUI ---
+// Em vez de um endereço fixo, ele agora usa a variável de ambiente
+// que você configurará no Render.
+app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(express.json());
-
 // Health-check
 app.get('/health', (req, res) => res.status(200).json({ status: 'OK' }));
 

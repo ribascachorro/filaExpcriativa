@@ -161,7 +161,7 @@ app.post('/queue/:id/attend', async (req, res) => {
   const { id } = req.params;
   try {
     const now = new Date();
-    const [result] = await pool.query(
+    await pool.query(
       'UPDATE queue_entries SET status = ?, served_at = ? WHERE id = ?',
       ['attended', now, id]
     );

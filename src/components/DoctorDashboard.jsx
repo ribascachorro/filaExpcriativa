@@ -14,8 +14,8 @@ export default function DoctorDashboard({ userId }) {
   // --- 2. Estados da anamnese ---
   const [anamnese, setAnamnese] = useState(null);
   const [showAnamneseModal, setShowAnamneseModal] = useState(false);
-  const [loadingAnamnese, setLoadingAnamnese] = useState(false);
-  const [errorAnamnese, setErrorAnamnese] = useState('');
+  //const [loadingAnamnese, setLoadingAnamnese] = useState(false);
+  //const [errorAnamnese, setErrorAnamnese] = useState('');
 
   // --- 3. Função para buscar dados da fila ---
   const fetchQueueData = async () => {

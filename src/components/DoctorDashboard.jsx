@@ -1,35 +1,38 @@
-// src/pages/DoctorDashboard.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react'; // Adicionado useContext
 import api from '../services/api';
 import AnamneseModal from './AnamneseModal';
+import { motion } from 'framer-motion'; // Adicionado motion
+import { AuthContext } from '../context/AuthContext'; // Adicionado AuthContext
 import './DoctorDashboard.css';
 
-export default function DoctorDashboard({ userId }) {
-  // --- 1. Estados da fila e paciente atual ---
+export default function DoctorDashboard() { // Removida a prop userId
+  const { user } = useContext(AuthContext); // Obter usuário do contexto
   const [pacienteAtual, setPacienteAtual] = useState(null);
   const [queueSize, setQueueSize] = useState(0);
   const [loadingQueue, setLoadingQueue] = useState(true);
   const [errorQueue, setErrorQueue] = useState('');
-
-  // --- 2. Estados da anamnese ---
   const [anamnese, setAnamnese] = useState(null);
   const [showAnamneseModal, setShowAnamneseModal] = useState(false);
-  //const [loadingAnamnese, setLoadingAnamnese] = useState(false);
-  //const [errorAnamnese, setErrorAnamnese] = useState('');
 
-  // --- 3. Função para buscar dados da fila ---
   const fetchQueueData = async () => {
+    if (!user) return; // Não fazer nada se o usuário não estiver logado
+
     try {
-      const response = await api.get('/queue');
+      // Adicionado header de autorização
+      const response = await api.get('/queue', {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       const patients = response.data;
       setQueueSize(patients.length);
       setPacienteAtual(patients[0] || null);
       setLoadingQueue(false);
 
-      // Se houver paciente atual, buscar sua anamnese
       if (patients[0]) {
         try {
-          const resAnamnese = await api.get(`/patients/${patients[0].patient_id}/anamnesis`);
+          // Adicionado header de autorização
+          const resAnamnese = await api.get(`/patients/${patients[0].patient_id}/anamnesis`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          });
           if (resAnamnese.data && resAnamnese.data.length > 0) {
             setAnamnese(resAnamnese.data[0]);
           } else {
@@ -53,12 +56,14 @@ export default function DoctorDashboard({ userId }) {
     fetchQueueData();
     const intervalId = setInterval(fetchQueueData, 5000);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [user]); // Adicionado user como dependência
 
-  // --- 4. Função para atender paciente ---
   const handleAttendPatient = async (patientId) => {
     try {
-      await api.post(`/queue/${patientId}/attend`);
+      // Adicionado header de autorização
+      await api.post(`/queue/${patientId}/attend`, {}, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       fetchQueueData();
     } catch (err) {
       console.error(err);
@@ -66,23 +71,27 @@ export default function DoctorDashboard({ userId }) {
     }
   };
 
-  // --- 5. Helper para texto de prioridade ---
   const getPriorityText = (priority) => {
     return priority === 1 ? 'Prioridade' : 'Normal';
   };
 
-  // --- 6. Render ---
   if (loadingQueue) return <div>Carregando...</div>;
   if (errorQueue) return <div className="error">{errorQueue}</div>;
 
   return (
-    <div className="doctor-dashboard">
+    <motion.div
+      className="doctor-dashboard"
+      initial={{ opacity: 0, x: -100 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 100 }}
+      transition={{ duration: 0.5 }}
+    >
       <h2>Painel do Médico</h2>
 
       <div className="queue-info">
         <div className="queue-size">
           <h3>Tamanho da Fila</h3>
-          <span className="size-number">{queueSize - 1}</span>
+          <span className="size-number">{queueSize > 0 ? queueSize - 1 : 0}</span>
           <p>pacientes aguardando</p>
         </div>
       </div>
@@ -137,7 +146,7 @@ export default function DoctorDashboard({ userId }) {
                 onClick={() => setShowAnamneseModal(true)}
                 className="attend-button"
               >
-                {anamnese ? 'Anamnese' : 'Anamnese'}
+                {anamnese ? 'Ver Anamnese' : 'Criar Anamnese'}
               </button>
             </div>
           </div>
@@ -152,10 +161,10 @@ export default function DoctorDashboard({ userId }) {
           existingAnamnese={anamnese}
           onClose={() => {
             setShowAnamneseModal(false);
-            fetchQueueData(); // Recarrega os dados após fechar o modal
+            fetchQueueData();
           }}
         />
       )}
-    </div>
+    </motion.div>
   );
 }
